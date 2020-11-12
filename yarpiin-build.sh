@@ -53,6 +53,9 @@ function clean_all {
 		if [ -f "$KERNELFLASHER_DIR/$KERNEL" ]; then
 		    rm `echo $KERNELFLASHER_DIR/$KERNEL`
         fi
+		if [ -f "$KERNELFLASHER_DIR/$DTBOIMG" ]; then
+		    rm `echo $KERNELFLASHER_DIR/$DTBOIMG`
+        fi
 		cd $KERNEL_DIR
 		echo
 		make clean && make mrproper
