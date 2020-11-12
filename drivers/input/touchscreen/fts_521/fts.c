@@ -4599,8 +4599,9 @@ static irqreturn_t fts_event_handler(int irq, void *ts_info)
 	unsigned char *evt_data;
 	static char pre_id[3];
 	event_dispatch_handler_t event_handler;
-
+#ifdef CONFIG_CPU_BOOST
 	touch_irq_boost();
+#endif
 	if (info->tp_pm_suspend) {
 		MI_TOUCH_LOGI(1, "%s %s: device in suspend, schedue to work", tag, __func__);
 		pm_wakeup_event(info->dev, 0);
