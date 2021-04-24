@@ -1,5 +1,14 @@
-  
+
 Project name: White-Wolf-UMI-UNI
+
+24/04/2021
+
+  * version 2
+  * defconfig: update wlan default config
+  * qcacld-3.0: Fallback to default WCNSS config path for custom ROMs
+  * qcacld-3.0: wlan_hdd_misc: Fix ini file path for oos11
+  * qcacld-3.0: Cleanup unused driver initialization code
+  
 
 24/03/2021
 
