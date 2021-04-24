@@ -29,7 +29,7 @@ GCC_DIR="/home/yarpiin/Android/Toolchains/google-gcc/bin"
 
 # Kernel Details
 BASE_YARPIIN_VER="WHITE.WOLF.UMI.UNI.R"
-VER=".BETA"
+VER=".001"
 YARPIIN_VER="$BASE_YARPIIN_VER$VER"
 
 # Vars
