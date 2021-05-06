@@ -14,7 +14,8 @@ KERNEL="Image.gz-dtb"
 DTBOIMG="dtbo.img"
 
 # Defconfigs
-UMIDEFCONFIG="vendor/yarpiin_defconfig"
+UMIDEFCONFIG="vendor/yarpiin_umi_defconfig"
+CMIDEFCONFIG="vendor/yarpiin_cmi_defconfig"
 
 # Build dirs
 KERNEL_DIR="/home/yarpiin/Android/Kernel/Xiaomi/White-Wolf-UMI-UNI"
@@ -28,9 +29,12 @@ CLANG_DIR="/home/yarpiin/Android/Toolchains/google-clang/bin"
 GCC_DIR="/home/yarpiin/Android/Toolchains/google-gcc/bin"
 
 # Kernel Details
-BASE_YARPIIN_VER="WHITE.WOLF.UMI.UNI.R"
+BASE_YARPIIN_VER="WHITE.WOLF.UNI.R."
+UMI_VER="UMI"
+CMI_VER="CMI"
 VER=".002"
-YARPIIN_VER="$BASE_YARPIIN_VER$VER"
+YARPIIN_UMI_VER="$BASE_YARPIIN_VER$UMI_VER$VER"
+YARPIIN_CMI_VER="$BASE_YARPIIN_VER$CMI_VER$VER"
 
 # Vars
 export ARCH=arm64
@@ -64,7 +68,7 @@ function clean_all {
 
 function make_umi_kernel {
 		echo
-        export LOCALVERSION=-`echo $YARPIIN_VER`
+        export LOCALVERSION=-`echo $YARPIIN_UMI_VER`
         make O=out ARCH=arm64 $UMIDEFCONFIG
 
         PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
@@ -79,10 +83,34 @@ function make_umi_kernel {
         find ${KERNEL_DIR} -name '*.ko' -exec cp -v {} ${MODULES_DIR} \;
 }
 
-function make_zip {
+function make_cmi_kernel {
+		echo
+        export LOCALVERSION=-`echo $YARPIIN_CMI_VER`
+        make O=out ARCH=arm64 $CMIDEFCONFIG
+
+        PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
+        make -j$(nproc --all) O=out \
+                      ARCH=arm64 \
+                      CC=clang \
+                      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-android-
+
+		cp -vr $ZIMAGE_DIR/$KERNEL $KERNELFLASHER_DIR
+		cp -vr $ZIMAGE_DIR/$DTBOIMG $KERNELFLASHER_DIR
+        find ${KERNEL_DIR} -name '*.ko' -exec cp -v {} ${MODULES_DIR} \;
+}
+
+function make_umi_zip {
 		cd $KERNELFLASHER_DIR
-		zip -r9 `echo $YARPIIN_VER`.zip *
-		mv  `echo $YARPIIN_VER`.zip $ZIP_MOVE
+		zip -r9 `echo $YARPIIN_UMI_VER`.zip *
+		mv  `echo $YARPIIN_UMI_VER`.zip $ZIP_MOVE
+		cd $KERNEL_DIR
+}
+
+function make_cmi_zip {
+		cd $KERNELFLASHER_DIR
+		zip -r9 `echo $YARPIIN_CMI_VER`.zip *
+		mv  `echo $YARPIIN_CMI_VER`.zip $ZIP_MOVE
 		cd $KERNEL_DIR
 }
 
@@ -146,11 +174,11 @@ done
 
 echo
 
-while read -p "Do you want to zip kernel (y/n)? " dchoice
+while read -p "Do you want to zip Mi10 5G kernel (y/n)? " dchoice
 do
 case "$dchoice" in
 	y|Y)
-		make_zip
+		make_umi_zip
 		break
 		;;
 	n|N )
@@ -164,6 +192,69 @@ case "$dchoice" in
 esac
 done
 
+echo
+
+while read -p "Do you want to clean stuffs (y/n)? " cchoice
+do
+case "$cchoice" in
+	y|Y )
+		clean_all
+		echo
+		echo "All Cleaned now."
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
+
+while read -p "Do you want to build MI 10 Pro kernel (y/n)? " dchoice
+do
+case "$dchoice" in
+	y|Y)
+		make_cmi_kernel
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
+
+while read -p "Do you want to zip Mi10 Pro kernel (y/n)? " dchoice
+do
+case "$dchoice" in
+	y|Y)
+		make_cmi_zip
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
 echo
 echo -e "${green}"
 echo "-------------------"
