@@ -1,6 +1,42 @@
 
 Project name: White-Wolf-UMI-UNI
 
+06/05/2021
+
+  * version 3
+  * cpufreq: schedutil: fix check for stale utilization values
+  * sched: fair: avoid little cpus due to sync, prev bias
+  * defconfig: disable msm performance
+  * drm/msm: fix brightness level mapping
+  * defconfig: enable zen iosched
+  * zen-iosched:: fix elevator ops
+  * zen-iosched: cast parameters to unsigned long
+  * block: zen: fix build on 3.18 kernel
+  * block: add zen IO scheduler
+  * fs: default to noatime
+  * net: ipv4: build modules inline
+  * security: set INIT_STACK_NONE as default
+  * arch/Kconfig: disable Shadow Call Stack by default
+  * build/defconfig: add cmi defconfig and update build script
+  * sched/core: Free dead mm structs asynchronously in finish_task_switch()
+  * sched/core: Free dead tasks asynchronously in finish_task_switch()
+  * kernel: sched: walt: fix window ravg HZ dependency
+  * sched: Avoid scale real weight down to zero
+  * binder: Stub out debug prints by default
+  * display: dsi: Disable logging
+  * binder_alloc: Disable logging
+  * drivers: Add toggle for disabling newly added USB devices
+  * ARM64: umi: overlay gpu data from kona-v2-gpu.dtsi
+  * arm64: dts: kona-v2-gpu: Overclock to 670mhz
+  * msm: kgsl: Report correct GPU frequency in sysfs
+  * adreno_tz: Fix GPU target frequency calculation for high refresh rates
+  * drivers: gpu: msm: Only build adreno 6xx part
+  * drm-msm-dsi: add backlight min option
+  * mm: vmstat: use power efficient workingqueues
+  * proc: cmdline: Don't patch flags in recovery mode
+  * proc: cmdline: Patch vbmeta device state flag for SafetyNet
+  * proc: cmdline: Patch SafetyNet flags
+
 24/04/2021
 
   * version 2
