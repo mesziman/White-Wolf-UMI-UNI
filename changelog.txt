@@ -1,6 +1,21 @@
 
 Project name: White-Wolf-UMI-UNI
 
+07/06/2021
+
+  * drivers: ufs: Roll back auto-hiberate idle timer to 1ms
+  * scsi: ufs: Hardcode and relax UFS CPU latency requirement
+  * scsi: ufs: Only create one pm_qos object for the IRQ
+  * scsi: ufs: Only apply pm_qos to the CPU servicing UFS interrupts
+  * scsi: ufs: Remove 10 ms CPU idle latency unvote timeout
+  * sched: Add API to migrate the current process to a given cpumask
+  * ANDROID: sched: EAS: take cstate into account when selecting idle core
+  * workqueue: Affine unbound workqueues to little CPUs by default
+  * kernel: Only set one CPU in the default IRQ affinity mask
+  * kernel: Don't allow IRQ affinity masks to have more than one CPU
+  * configs: Use a timer frequency of 100 Hz
+  * configs: Don't sync when entering suspend
+
 05/06/2021
 
   * dtsi: panel: enable panel ulps mode
