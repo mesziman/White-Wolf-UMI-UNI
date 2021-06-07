@@ -1,6 +1,19 @@
 
 Project name: White-Wolf-UMI-UNI
 
+05/06/2021
+
+  * dtsi: panel: enable panel ulps mode
+  * defconfig: enable Boeffla wakelock blocker
+  * boeffla_wl_blocker: don't block wakelocks by default
+  * boeffla_wl_blocker: update to wakelock blocker driver v1.1.0
+  * boeffla_wl_blocker: update to wakelock blocker driver v1.0.1
+  * boeffla_wl_blocker: add generic wakelock blocker driver v1.0.0
+  * ARM64: dts: Allow Adreno 650 to nap
+  * Kernel: Disable GFS for better UI performance
+  * Kernel/sched: Reduce Latency [Pafcholini]
+  * Kernel/sched: Reduce latency for better responsiveness
+
 06/05/2021
 
   * version 3
