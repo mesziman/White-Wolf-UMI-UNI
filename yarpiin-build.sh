@@ -10,7 +10,7 @@ clear
 
 # Resources
 THREAD="-j$(grep -c ^processor /proc/cpuinfo)"
-KERNEL="Image.gz-dtb"
+KERNEL="Image.gz"
 DTBOIMG="dtbo.img"
 
 # Defconfigs
@@ -33,7 +33,7 @@ YARPIIN_VER="WHITE WOLF KERNEL MI10 5G / PRO"
 BASE_YARPIIN_VER="WHITE.WOLF.UNI.R."
 UMI_VER="UMI"
 CMI_VER="CMI"
-VER=".005"
+VER=".006"
 YARPIIN_UMI_VER="$BASE_YARPIIN_VER$UMI_VER$VER"
 YARPIIN_CMI_VER="$BASE_YARPIIN_VER$CMI_VER$VER"
 
