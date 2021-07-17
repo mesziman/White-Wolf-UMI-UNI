@@ -1,6 +1,14 @@
 
 Project name: White-Wolf-UMI-UNI
 
+17/07/2021
+
+  * version 7
+  * mmc: Disable SPI CRC
+  * drivers: xiaomi_touch: add a sysfs node to bump touch sample rate
+  * soc: qcom: smp2p: Remove IRQF_NO_SUSPEND
+  * defconfig: nuke min freqs hardode
+
 11/07/2021
 
   * defconfig: Enable Simple LMK
