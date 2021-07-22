@@ -223,6 +223,7 @@ struct dsi_panel {
 
 	int hbm_mode;
 	bool resend_ea;
+    bool resend_ea_hbm;
 
 };
 
