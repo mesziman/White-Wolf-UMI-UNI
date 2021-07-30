@@ -1,6 +1,47 @@
 
 Project name: White-Wolf-UMI-UNI
 
+30/07/2021
+
+  * qcom: qpnp-fg-gen3: queue works into a power efficent WQ
+  * block: queue work on power efficient wq
+  * gpu: drm: use power efficient workingqueues
+  * thermal: core: using power_efficient_wq for thermal worker
+  * platform: ipa: use power efficient workingqueues
+  * techpack: use power efficient workingqueues
+  * defconfig: add cas defconfig
+  * cpuidle: lpm-levels: Change idle policy to always enter C1 first
+  * sched/fair: Use non-atomic cpumask_{set,clear}_cpu()
+  * sched/{rt,deadline}: Fix set_next_task vs pick_next_task
+  * sched/rt: Fix Deadline utilization tracking during policy change
+  * sched/rt: Fix RT utilization tracking during policy change
+  * arm64: dts: qcom: kona: fixup CPU topology
+  * FROMGIT: timer_list: Print name of per-cpu wakeup device
+  * FROMGIT: tick/broadcast: Program wakeup timer when entering idle if required
+  * FROMGIT: tick/broadcast: Prefer per-cpu oneshot wakeup timers to broadcast
+  * FROMGIT: tick/broadcast: Split __tick_broadcast_oneshot_control() into a helper
+  * FROMGIT: tick/broadcast: Drop unneeded CONFIG_GENERIC_CLOCKEVENTS_BROADCAST guard
+  * FROMGIT: tick/broadcast: Allow late registered device to enter oneshot mode
+  * tick: Fix typos in comments
+  * tick/broadcast: Fix warning about undefined tick_broadcast_oneshot_offline()
+  * tick: Remove outgoing CPU from broadcast masks
+  * disp: msm: Don't clear dim layers when there aren't any applied
+  * drm/msm: Speed up interrupt processing upon commit
+  * drm/msm/sde: Don't read and clear VBIF errors upon commit
+  * drm/msm/sde: Skip heavy autorefresh checks when it's not enabled
+  * dsi_display: Disable DC dimming while HBM is active
+  * dsi_display:  Use type_map array index 0 for invalid hbm values
+  * dsi_display: temporary disable DC dimming when in fod_hbm mode
+  * dsi_disolay: add get_main_display
+  * dsi_display:  adapt exposure adjustment methods
+  * dsi_display: Let exposure adjustment switchable via sysfs
+  * dsi_display: Introduce exposure adjustment driver
+  * dsi_display: Add support for high brightness mode (HBM)
+  * dsi_display: create empty attributes group
+  * dsi_display: Use mi hbm command
+  * dsi_display: Set doze brightness level based on current brightness
+  * dsi_display: set doze brightness for aod correctly
+
 17/07/2021
 
   * version 7
