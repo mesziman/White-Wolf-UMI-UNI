@@ -16,6 +16,7 @@ DTBOIMG="dtbo.img"
 # Defconfigs
 UMIDEFCONFIG="vendor/yarpiin_umi_defconfig"
 CMIDEFCONFIG="vendor/yarpiin_cmi_defconfig"
+CASDEFCONFIG="vendor/yarpiin_cas_defconfig"
 
 # Build dirs
 KERNEL_DIR="/home/yarpiin/Android/Kernel/Xiaomi/White-Wolf-UMI-UNI"
@@ -33,9 +34,11 @@ YARPIIN_VER="WHITE WOLF KERNEL MI10 5G / PRO"
 BASE_YARPIIN_VER="WHITE.WOLF.UNI.R."
 UMI_VER="UMI"
 CMI_VER="CMI"
-VER=".007"
+CAS_VER="CAS"
+VER=".008"
 YARPIIN_UMI_VER="$BASE_YARPIIN_VER$UMI_VER$VER"
 YARPIIN_CMI_VER="$BASE_YARPIIN_VER$CMI_VER$VER"
+YARPIIN_CAS_VER="$BASE_YARPIIN_VER$CAS_VER$VER"
 
 # Vars
 export ARCH=arm64
@@ -101,6 +104,23 @@ function make_cmi_kernel {
         find ${KERNEL_DIR} -name '*.ko' -exec cp -v {} ${MODULES_DIR} \;
 }
 
+function make_cas_kernel {
+		echo
+        export LOCALVERSION=-`echo $YARPIIN_CAS_VER`
+        make O=out ARCH=arm64 $CASDEFCONFIG
+
+        PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
+        make -j$(nproc --all) O=out \
+                      ARCH=arm64 \
+                      CC=clang \
+                      CLANG_TRIPLE=aarch64-linux-gnu- \
+                      CROSS_COMPILE=aarch64-linux-android-
+
+		cp -vr $ZIMAGE_DIR/$KERNEL $KERNELFLASHER_DIR
+		cp -vr $ZIMAGE_DIR/$DTBOIMG $KERNELFLASHER_DIR
+        find ${KERNEL_DIR} -name '*.ko' -exec cp -v {} ${MODULES_DIR} \;
+}
+
 function make_umi_zip {
 		cd $KERNELFLASHER_DIR
 		zip -r9 `echo $YARPIIN_UMI_VER`.zip *
@@ -112,6 +132,13 @@ function make_cmi_zip {
 		cd $KERNELFLASHER_DIR
 		zip -r9 `echo $YARPIIN_CMI_VER`.zip *
 		mv  `echo $YARPIIN_CMI_VER`.zip $ZIP_MOVE
+		cd $KERNEL_DIR
+}
+
+function make_cas_zip {
+		cd $KERNELFLASHER_DIR
+		zip -r9 `echo $YARPIIN_CAS_VER`.zip *
+		mv  `echo $YARPIIN_CAS_VER`.zip $ZIP_MOVE
 		cd $KERNEL_DIR
 }
 
@@ -254,6 +281,48 @@ case "$dchoice" in
 		;;
 esac
 done
+
+echo
+
+while read -p "Do you want to build MI 10 Ultra kernel (y/n)? " dchoice
+do
+case "$dchoice" in
+	y|Y)
+		make_cas_kernel
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
+
+while read -p "Do you want to zip Mi10 Ultra kernel (y/n)? " dchoice
+do
+case "$dchoice" in
+	y|Y)
+		make_cas_zip
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
 
 echo
 echo
