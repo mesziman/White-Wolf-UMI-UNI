@@ -1,8 +1,25 @@
-
 Project name: White-Wolf-UMI-UNI
+
+05/08/2021
+
+  * version 9
+  * defconfig: update
+  * drivers: input: fts_521: Implement double_tap node
+  * drivers: input: focaltech_spi: Implement double_tap node
+  * sched/core: Use SCHED_RR in place of SCHED_FIFO for all users
+  * sched/fair: Add feature to toggle SchedTune utilization boosting
+  * sched/walt: Never allow userspace affect load scale
+  * sched/topology: Don't try to build empty sched domains
+  * sched/topology: Don't set SD_BALANCE_WAKE on cpuset domain relax
+  * sched/core: Streamle calls to task_rq_unlock()
+  * sched/wait: Deduplicate code with do-while
+  * sched/features: Fix hrtick reprogramming
+  * arch: arm64: dts: qcom: Correct display physical dimensions reporting
+
 
 30/07/2021
 
+  * version 8
   * qcom: qpnp-fg-gen3: queue works into a power efficent WQ
   * block: queue work on power efficient wq
   * gpu: drm: use power efficient workingqueues
