@@ -231,6 +231,7 @@ struct dsi_panel {
 	u32 fod_dim_lut_count;
 
 	int hbm_mode;
+	bool resend_ea;
 
 };
 
