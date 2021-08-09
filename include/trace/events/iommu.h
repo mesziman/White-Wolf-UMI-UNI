@@ -3,6 +3,7 @@
  * iommu trace points
  *
  * Copyright (C) 2013 Shuah Khan <shuah.kh@samsung.com>
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  */
 #undef TRACE_SYSTEM
@@ -12,8 +13,10 @@
 #define _TRACE_IOMMU_H
 
 #include <linux/tracepoint.h>
+#include <linux/iommu.h>
 
 struct device;
+struct iommu_domain;
 
 DECLARE_EVENT_CLASS(iommu_group_event,
 
@@ -85,47 +88,138 @@ DEFINE_EVENT(iommu_device_event, detach_device_from_domain,
 
 TRACE_EVENT(map,
 
-	TP_PROTO(unsigned long iova, phys_addr_t paddr, size_t size),
+	TP_PROTO(struct iommu_domain *domain, unsigned long iova,
+		 phys_addr_t paddr, size_t size, int prot),
 
-	TP_ARGS(iova, paddr, size),
+	TP_ARGS(domain, iova, paddr, size, prot),
 
 	TP_STRUCT__entry(
+		__string(name, domain->name)
 		__field(u64, iova)
 		__field(u64, paddr)
 		__field(size_t, size)
+		__field(int, prot)
 	),
 
 	TP_fast_assign(
+		__assign_str(name, domain->name);
 		__entry->iova = iova;
 		__entry->paddr = paddr;
 		__entry->size = size;
+		__entry->prot = prot;
 	),
 
-	TP_printk("IOMMU: iova=0x%016llx paddr=0x%016llx size=%zu",
-			__entry->iova, __entry->paddr, __entry->size
+	TP_printk("IOMMU:%s iova=0x%016llx paddr=0x%016llx size=0x%zx prot=0x%x",
+			__get_str(name), __entry->iova, __entry->paddr,
+			__entry->size, __entry->prot
 	)
 );
 
 TRACE_EVENT(unmap,
 
-	TP_PROTO(unsigned long iova, size_t size, size_t unmapped_size),
+	TP_PROTO(struct iommu_domain *domain, unsigned long iova, size_t size,
+			size_t unmapped_size),
 
-	TP_ARGS(iova, size, unmapped_size),
+	TP_ARGS(domain, iova, size, unmapped_size),
 
 	TP_STRUCT__entry(
+		__string(name, domain->name)
 		__field(u64, iova)
 		__field(size_t, size)
 		__field(size_t, unmapped_size)
 	),
 
 	TP_fast_assign(
+		__assign_str(name, domain->name);
 		__entry->iova = iova;
 		__entry->size = size;
 		__entry->unmapped_size = unmapped_size;
 	),
 
-	TP_printk("IOMMU: iova=0x%016llx size=%zu unmapped_size=%zu",
-			__entry->iova, __entry->size, __entry->unmapped_size
+	TP_printk("IOMMU:%s iova=0x%016llx size=0x%zx unmapped_size=0x%zx",
+			__get_str(name), __entry->iova, __entry->size,
+			__entry->unmapped_size
+	)
+);
+
+TRACE_EVENT(map_sg,
+
+	TP_PROTO(struct iommu_domain *domain, unsigned long iova, size_t size,
+		int prot),
+
+	TP_ARGS(domain, iova, size, prot),
+
+	TP_STRUCT__entry(
+		__string(name, domain->name)
+		__field(u64, iova)
+		__field(size_t, size)
+		__field(int, prot)
+	),
+
+	TP_fast_assign(
+		__assign_str(name, domain->name);
+		__entry->iova = iova;
+		__entry->size = size;
+		__entry->prot = prot;
+	),
+
+	TP_printk("IOMMU:%s iova=0x%016llx size=0x%zx prot=0x%x",
+			__get_str(name), __entry->iova, __entry->size,
+			__entry->prot
+	)
+);
+
+TRACE_EVENT(io_pgtable_free,
+
+	TP_PROTO(u64 *table_base, u64 *pudp, u64 pud, unsigned long iova, int block),
+
+	TP_ARGS(table_base, pudp, pud, iova, block),
+
+	TP_STRUCT__entry(
+		__field(u64*, table_base)
+		__field(u64*, pudp)
+		__field(u64, pud)
+		__field(u64, iova)
+		__field(int, block)
+	),
+
+	TP_fast_assign(
+		__entry->table_base = table_base;
+		__entry->pudp = pudp;
+		__entry->pud = pud;
+		__entry->iova = iova;
+		__entry->block = block;
+	),
+
+	TP_printk("IOMMU: Freeing %s io-pgtable at 0x%lx pud=0x%lx *pud=0x%lx iova=0x%lx blk=%d",
+			__entry->block ? "block" : "", __entry->table_base, __entry->pudp,
+			__entry->pud, __entry->iova, __entry->block
+	)
+);
+
+TRACE_EVENT(io_pgtable_install,
+
+	TP_PROTO(u64 *table_base, u64 *pudp, u64 pud, int block),
+
+	TP_ARGS(table_base, pudp, pud, block),
+
+	TP_STRUCT__entry(
+		__field(u64*, table_base)
+		__field(u64*, pudp)
+		__field(u64, pud)
+		__field(int, block)
+	),
+
+	TP_fast_assign(
+		__entry->table_base = table_base;
+		__entry->pudp = pudp;
+		__entry->pud = pud;
+		__entry->block = block;
+	),
+
+	TP_printk("IOMMU: Installed %s io-pgtable at 0x%lx pud=0x%lx *pud=0x%lx blk=%d",
+			__entry->block ? "block" : "", __entry->table_base, __entry->pudp,
+			__entry->pud, __entry->block
 	)
 );
 
@@ -161,6 +255,66 @@ DEFINE_EVENT(iommu_error, io_page_fault,
 
 	TP_ARGS(dev, iova, flags)
 );
+
+DECLARE_EVENT_CLASS(iommu_tlbi,
+
+	TP_PROTO(struct device *dev, u64 time),
+
+	TP_ARGS(dev, time),
+
+	TP_STRUCT__entry(
+		__string(device, dev_name(dev))
+		__field(u64, time)
+	),
+
+	TP_fast_assign(
+		__assign_str(device, dev_name(dev));
+		__entry->time = time;
+	),
+
+	TP_printk("IOMMU:%s %lld us",
+			__get_str(device), __entry->time
+	)
+);
+
+DEFINE_EVENT(iommu_tlbi, tlbi_start,
+
+	TP_PROTO(struct device *dev, u64 time),
+
+	TP_ARGS(dev, time)
+);
+
+DEFINE_EVENT(iommu_tlbi, tlbi_end,
+
+	TP_PROTO(struct device *dev, u64 time),
+
+	TP_ARGS(dev, time)
+);
+
+DEFINE_EVENT(iommu_tlbi, tlbsync_timeout,
+
+	TP_PROTO(struct device *dev, u64 time),
+
+	TP_ARGS(dev, time)
+);
+
+TRACE_EVENT(smmu_init,
+
+	TP_PROTO(u64 time),
+
+	TP_ARGS(time),
+
+	TP_STRUCT__entry(
+		__field(u64, time)
+	),
+
+	TP_fast_assign(
+		__entry->time = time;
+	),
+
+	TP_printk("ARM SMMU init latency: %lld us", __entry->time)
+);
+
 #endif /* _TRACE_IOMMU_H */
 
 /* This part must be outside protection */

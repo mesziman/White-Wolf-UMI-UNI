@@ -2,6 +2,7 @@
  * Backlight Lowlevel Control Abstraction
  *
  * Copyright (C) 2003,2004 Hewlett-Packard Company
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  */
 
@@ -119,6 +120,7 @@ static void backlight_generate_event(struct backlight_device *bd,
 	envp[1] = NULL;
 	kobject_uevent_env(&bd->dev.kobj, KOBJ_CHANGE, envp);
 	sysfs_notify(&bd->dev.kobj, NULL, "actual_brightness");
+	sysfs_notify(&bd->dev.kobj, NULL, "brightness");
 }
 
 static ssize_t bl_power_show(struct device *dev, struct device_attribute *attr,
@@ -180,6 +182,13 @@ int backlight_device_set_brightness(struct backlight_device *bd,
 		if (brightness > bd->props.max_brightness)
 			rc = -EINVAL;
 		else {
+			if ((!bd->use_count && brightness) || (bd->use_count && !brightness)) {
+				pr_info("%s: set brightness to %lu\n", __func__, brightness);
+				if (!bd->use_count)
+					bd->use_count++;
+				else
+					bd->use_count--;
+			}
 			pr_debug("set brightness to %lu\n", brightness);
 			bd->props.brightness = brightness;
 			rc = backlight_update_status(bd);
@@ -204,6 +213,12 @@ static ssize_t brightness_store(struct device *dev,
 	if (rc)
 		return rc;
 
+	bd->usr_brightness_req = brightness;
+#ifndef CONFIG_THERMAL_DIMMING
+	brightness = (brightness <= bd->thermal_brightness_limit) ?
+				bd->usr_brightness_req :
+				bd->thermal_brightness_limit;
+#endif
 	rc = backlight_device_set_brightness(bd, brightness);
 
 	return rc ? rc : count;
@@ -286,12 +301,47 @@ static void bl_device_release(struct device *dev)
 	kfree(bd);
 }
 
+static ssize_t brightness_clone_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct backlight_device *bd = to_backlight_device(dev);
+
+	return snprintf(buf, PAGE_SIZE, "%d\n", bd->props.brightness_clone);
+}
+
+static ssize_t brightness_clone_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	int rc;
+	struct backlight_device *bd = to_backlight_device(dev);
+	unsigned long brightness;
+	char *envp[2];
+
+	rc = kstrtoul(buf, 0, &brightness);
+	if (rc)
+		return rc;
+
+	bd->props.brightness_clone_backup = brightness;
+	brightness = (brightness <= bd->thermal_brightness_clone_limit) ?
+				brightness : bd->thermal_brightness_clone_limit;
+	bd->props.brightness_clone = brightness;
+	envp[0] = "SOURCE=sysfs";
+	envp[1] = NULL;
+	kobject_uevent_env(&bd->dev.kobj, KOBJ_CHANGE, envp);
+	sysfs_notify(&bd->dev.kobj, NULL, "brightness_clone");
+
+	return count;
+}
+
+static DEVICE_ATTR_RW(brightness_clone);
+
 static struct attribute *bl_device_attrs[] = {
 	&dev_attr_bl_power.attr,
 	&dev_attr_brightness.attr,
 	&dev_attr_actual_brightness.attr,
 	&dev_attr_max_brightness.attr,
 	&dev_attr_type.attr,
+	&dev_attr_brightness_clone.attr,
 	NULL,
 };
 ATTRIBUTE_GROUPS(bl_device);
@@ -314,6 +364,71 @@ void backlight_force_update(struct backlight_device *bd,
 	backlight_generate_event(bd, reason);
 }
 EXPORT_SYMBOL(backlight_force_update);
+
+static int bd_cdev_get_max_brightness(struct thermal_cooling_device *cdev,
+					unsigned long *state)
+{
+	struct backlight_device *bd = (struct backlight_device *)cdev->devdata;
+
+	*state = bd->props.max_brightness;
+
+	return 0;
+}
+
+static int bd_cdev_get_cur_brightness(struct thermal_cooling_device *cdev,
+					unsigned long *state)
+{
+	struct backlight_device *bd = (struct backlight_device *)cdev->devdata;
+
+	*state = bd->props.max_brightness - bd->thermal_brightness_limit;
+
+	return 0;
+}
+
+static int bd_cdev_set_cur_brightness(struct thermal_cooling_device *cdev,
+					unsigned long state)
+{
+	struct backlight_device *bd = (struct backlight_device *)cdev->devdata;
+	int brightness_lvl;
+
+	if (state > bd->props.max_brightness)
+		return -EINVAL;
+
+	brightness_lvl = bd->props.max_brightness - state;
+	if (brightness_lvl == bd->thermal_brightness_limit)
+		return 0;
+	bd->thermal_brightness_limit = brightness_lvl;
+
+#ifdef CONFIG_THERMAL_DIMMING
+	sysfs_notify(&cdev->device.kobj, NULL, "cur_state");
+	pr_info("thermal dimming:set thermal_brightness_limit to %d\n", bd->thermal_brightness_limit);
+#else
+	brightness_lvl = (bd->usr_brightness_req
+				<= bd->thermal_brightness_limit) ?
+				bd->usr_brightness_req :
+				bd->thermal_brightness_limit;
+
+	backlight_device_set_brightness(bd, brightness_lvl);
+#endif
+	return 0;
+}
+
+static struct thermal_cooling_device_ops bd_cdev_ops = {
+	.get_max_state = bd_cdev_get_max_brightness,
+	.get_cur_state = bd_cdev_get_cur_brightness,
+	.set_cur_state = bd_cdev_set_cur_brightness,
+};
+
+static void backlight_cdev_register(struct device *parent,
+				    struct backlight_device *bd)
+{
+	if (of_find_property(parent->of_node, "#cooling-cells", NULL)) {
+		bd->cdev = thermal_of_cooling_device_register(parent->of_node,
+				(char *)dev_name(&bd->dev), bd, &bd_cdev_ops);
+		if (!bd->cdev)
+			pr_err("Cooling device register failed\n");
+	}
+}
 
 /**
  * backlight_device_register - create and register a new object of
@@ -358,6 +473,8 @@ struct backlight_device *backlight_device_register(const char *name,
 			WARN(1, "%s: invalid backlight type", name);
 			new_bd->props.type = BACKLIGHT_RAW;
 		}
+		new_bd->thermal_brightness_limit = props->max_brightness;
+		new_bd->usr_brightness_req = props->brightness;
 	} else {
 		new_bd->props.type = BACKLIGHT_RAW;
 	}
@@ -374,6 +491,7 @@ struct backlight_device *backlight_device_register(const char *name,
 		return ERR_PTR(rc);
 	}
 
+	backlight_cdev_register(parent, new_bd);
 	new_bd->ops = ops;
 
 #ifdef CONFIG_PMAC_BACKLIGHT

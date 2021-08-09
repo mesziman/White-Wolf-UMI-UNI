@@ -2,6 +2,7 @@
  * drivers/base/power/wakeup.c - System wakeup events framework
  *
  * Copyright (c) 2010 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This file is released under the GPLv2.
  */
@@ -17,6 +18,9 @@
 #include <linux/pm_wakeirq.h>
 #include <linux/types.h>
 #include <trace/events/power.h>
+#include <linux/irq.h>
+#include <linux/interrupt.h>
+#include <linux/irqdesc.h>
 
 #include "power.h"
 
@@ -118,7 +122,6 @@ static void wakeup_source_record(struct wakeup_source *ws)
 	unsigned long flags;
 
 	spin_lock_irqsave(&deleted_ws.lock, flags);
-
 	if (ws->event_count) {
 		deleted_ws.total_time =
 			ktime_add(deleted_ws.total_time, ws->total_time);
@@ -242,7 +245,9 @@ void wakeup_source_unregister(struct wakeup_source *ws)
 {
 	if (ws) {
 		wakeup_source_remove(ws);
-		wakeup_source_sysfs_remove(ws);
+		if (ws->dev)
+			wakeup_source_sysfs_remove(ws);
+
 		wakeup_source_destroy(ws);
 	}
 }
@@ -923,7 +928,21 @@ void pm_wakeup_clear(bool reset)
 
 void pm_system_irq_wakeup(unsigned int irq_number)
 {
+	struct irq_desc *desc;
+	const char *name = "null";
+
 	if (pm_wakeup_irq == 0) {
+		if (msm_show_resume_irq_mask) {
+			desc = irq_to_desc(irq_number);
+			if (desc == NULL)
+				name = "stray irq";
+			else if (desc->action && desc->action->name)
+				name = desc->action->name;
+
+			pr_warn("%s: %d triggered %s\n", __func__,
+					irq_number, name);
+
+		}
 		pm_wakeup_irq = irq_number;
 		pm_system_wakeup();
 	}

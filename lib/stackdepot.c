@@ -14,6 +14,7 @@
  *
  * Author: Alexander Potapenko <glider@google.com>
  * Copyright (C) 2016 Google, Inc.
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Based on code by Dmitry Chernenkov.
  *
@@ -69,6 +70,7 @@ struct stack_record {
 	struct stack_record *next;	/* Link in the hashtable */
 	u32 hash;			/* Hash in the hastable */
 	u32 size;			/* Number of frames in the stack */
+	pid_t pid;
 	union handle_parts handle;
 	unsigned long entries[1];	/* Variable-sized array of entries. */
 };
@@ -150,8 +152,7 @@ static struct stack_record *depot_alloc_stack(unsigned long *entries, int size,
 	return stack;
 }
 
-#define STACK_HASH_ORDER 20
-#define STACK_HASH_SIZE (1L << STACK_HASH_ORDER)
+#define STACK_HASH_SIZE (1L << CONFIG_STACK_HASH_ORDER_SHIFT)
 #define STACK_HASH_MASK (STACK_HASH_SIZE - 1)
 #define STACK_HASH_SEED 0x9747b28c
 
@@ -219,7 +220,8 @@ EXPORT_SYMBOL_GPL(depot_fetch_stack);
  * Returns the handle of the stack struct stored in depot.
  */
 depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
-				    gfp_t alloc_flags)
+				    gfp_t alloc_flags,
+				    pid_t pid)
 {
 	u32 hash;
 	depot_stack_handle_t retval = 0;
@@ -275,6 +277,7 @@ depot_stack_handle_t depot_save_stack(struct stack_trace *trace,
 					  hash, &prealloc, alloc_flags);
 		if (new) {
 			new->next = *bucket;
+			new->pid = pid;
 			/*
 			 * This smp_store_release() pairs with
 			 * smp_load_acquire() from |bucket| above.

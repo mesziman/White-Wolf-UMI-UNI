@@ -241,6 +241,8 @@ dev_t name_to_dev_t(const char *name)
 
 	if (strlen(name) > 31)
 		goto fail;
+	if (strnstr(name, "block", strlen(name)))
+		name += 6;
 	strcpy(s, name);
 	for (p = s; *p; p++)
 		if (*p == '/')
@@ -555,6 +557,7 @@ void __init prepare_namespace(void)
 	wait_for_device_probe();
 
 	md_run_setup();
+	dm_run_setup();
 
 	if (saved_root_name[0]) {
 		root_device_name = saved_root_name;

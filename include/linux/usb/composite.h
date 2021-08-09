@@ -3,6 +3,7 @@
  * composite.h -- framework for usb gadgets which are composite devices
  *
  * Copyright (C) 2006-2008 David Brownell
+ * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +42,13 @@
 #include <linux/usb/gadget.h>
 #include <linux/log2.h>
 #include <linux/configfs.h>
+
+/* FUNCTION_SUSPEND: suspend options from usb 3.0 spec Table 9-7 */
+#define FUNC_SUSPEND_OPT_SUSP_MASK BIT(0)
+#define FUNC_SUSPEND_OPT_RW_EN_MASK BIT(1)
+
+#define FUNC_WAKEUP_CAPABLE_SHIFT  0
+#define FUNC_WAKEUP_ENABLE_SHIFT   1
 
 /*
  * USB function drivers should return USB_GADGET_DELAYED_STATUS if they
@@ -118,6 +126,7 @@ struct usb_os_desc_table {
 /**
  * struct usb_function - describes one function of a configuration
  * @name: For diagnostics, identifies the function.
+ * @intf_id: Interface ID
  * @strings: tables of strings, keyed by identifiers assigned during bind()
  *	and by language IDs provided in control requests
  * @fs_descriptors: Table of full (or low) speed descriptors, using interface and
@@ -162,7 +171,14 @@ struct usb_os_desc_table {
  * @get_status: Returns function status as a reply to
  *	GetStatus() request when the recipient is Interface.
  * @func_suspend: callback to be called when
- *	SetFeature(FUNCTION_SUSPEND) is reseived
+ *	SetFeature(FUNCTION_SUSPEND) is received
+ * @func_is_suspended: Tells whether the function is currently in
+ *	Function Suspend state (used in Super Speed mode only).
+ * @func_wakeup_allowed: Tells whether Function Remote Wakeup has been allowed
+ *	by the USB host (used in Super Speed mode only).
+ * @func_wakeup_pending: Marks that the function has issued a Function Wakeup
+ *	while the USB bus was suspended and therefore a Function Wakeup
+ *	notification needs to be sent once the USB bus is resumed.
  *
  * A single USB function uses one or more interfaces, and should in most
  * cases support operation at both full and high speeds.  Each function is
@@ -190,6 +206,7 @@ struct usb_os_desc_table {
 
 struct usb_function {
 	const char			*name;
+	int				intf_id;
 	struct usb_gadget_strings	**strings;
 	struct usb_descriptor_header	**fs_descriptors;
 	struct usb_descriptor_header	**hs_descriptors;
@@ -233,6 +250,9 @@ struct usb_function {
 	int			(*get_status)(struct usb_function *);
 	int			(*func_suspend)(struct usb_function *,
 						u8 suspend_opt);
+	unsigned		func_is_suspended:1;
+	unsigned		func_wakeup_allowed:1;
+	unsigned		func_wakeup_pending:1;
 	/* private: */
 	/* internals */
 	struct list_head		list;
@@ -248,6 +268,9 @@ int usb_function_deactivate(struct usb_function *);
 int usb_function_activate(struct usb_function *);
 
 int usb_interface_id(struct usb_configuration *, struct usb_function *);
+int usb_func_wakeup(struct usb_function *func);
+
+int usb_get_func_interface_id(struct usb_function *func);
 
 int config_ep_by_speed(struct usb_gadget *g, struct usb_function *f,
 			struct usb_ep *_ep);
@@ -494,7 +517,7 @@ struct usb_composite_dev {
 	struct usb_composite_driver	*driver;
 	u8				next_string_id;
 	char				*def_manufacturer;
-
+	bool                    isMSOS;
 	/* the gadget driver won't enable the data pullup
 	 * while the deactivation count is nonzero.
 	 */

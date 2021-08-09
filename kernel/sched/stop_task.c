@@ -8,6 +8,7 @@
  * See kernel/stop_machine.c
  */
 #include "sched.h"
+#include "walt.h"
 
 #ifdef CONFIG_SMP
 static int
@@ -43,12 +44,14 @@ static void
 enqueue_task_stop(struct rq *rq, struct task_struct *p, int flags)
 {
 	add_nr_running(rq, 1);
+	walt_inc_cumulative_runnable_avg(rq, p);
 }
 
 static void
 dequeue_task_stop(struct rq *rq, struct task_struct *p, int flags)
 {
 	sub_nr_running(rq, 1);
+	walt_dec_cumulative_runnable_avg(rq, p);
 }
 
 static void yield_task_stop(struct rq *rq)
@@ -70,7 +73,6 @@ static void put_prev_task_stop(struct rq *rq, struct task_struct *prev)
 
 	curr->se.sum_exec_runtime += delta_exec;
 	account_group_exec_runtime(curr, delta_exec);
-
 	curr->se.exec_start = rq_clock_task(rq);
 	cgroup_account_cputime(curr, delta_exec);
 }
@@ -143,4 +145,7 @@ const struct sched_class stop_sched_class = {
 	.prio_changed		= prio_changed_stop,
 	.switched_to		= switched_to_stop,
 	.update_curr		= update_curr_stop,
+#ifdef CONFIG_SCHED_WALT
+	.fixup_walt_sched_stats	= fixup_walt_sched_stats_common,
+#endif
 };

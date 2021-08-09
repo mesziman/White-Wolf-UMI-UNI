@@ -723,7 +723,7 @@ static void tcp_rtt_estimator(struct sock *sk, long mrtt_us)
 	struct tcp_sock *tp = tcp_sk(sk);
 	long m = mrtt_us; /* RTT */
 	u32 srtt = tp->srtt_us;
-
+	tp->seq_rtt_us = mrtt_us;
 	/*	The following amusing code comes from Jacobson's
 	 *	article in SIGCOMM '88.  Note that rtt and mdev
 	 *	are scaled versions of rtt and mean deviation.
@@ -5169,7 +5169,8 @@ static void __tcp_ack_snd_check(struct sock *sk, int ofo_possible)
 	unsigned long rtt, delay;
 
 	    /* More than one full frame received... */
-	if (((tp->rcv_nxt - tp->rcv_wup) > inet_csk(sk)->icsk_ack.rcv_mss &&
+	if (((tp->rcv_nxt - tp->rcv_wup) > (inet_csk(sk)->icsk_ack.rcv_mss) *
+					sysctl_tcp_delack_seg &&
 	     /* ... and right edge of window advances far enough.
 	      * (tcp_recvmsg() will send ACK otherwise).
 	      * If application uses SO_RCVLOWAT, we want send ack now if

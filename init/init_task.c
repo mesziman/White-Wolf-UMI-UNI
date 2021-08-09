@@ -74,6 +74,7 @@ struct task_struct init_task
 	.policy		= SCHED_NORMAL,
 	.cpus_allowed	= CPU_MASK_ALL,
 	.nr_cpus_allowed= NR_CPUS,
+	.cpus_requested	= CPU_MASK_ALL,
 	.mm		= NULL,
 	.active_mm	= &init_mm,
 	.restart_block	= {
@@ -179,6 +180,10 @@ struct task_struct init_task
 #endif
 #ifdef CONFIG_SECURITY
 	.security	= NULL,
+#endif
+#ifdef CONFIG_KPERFEVENTS
+	.kperfevents_lock = __RW_LOCK_UNLOCKED(tsk.kperfevents_lock),
+	.kperfevents = NULL,
 #endif
 };
 EXPORT_SYMBOL(init_task);

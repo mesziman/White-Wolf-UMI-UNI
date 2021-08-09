@@ -31,6 +31,10 @@
 #include <linux/binfmts.h>
 #include <linux/personality.h>
 
+#ifdef CONFIG_ANDROID_PARANOID_NETWORK
+#include <linux/android_aid.h>
+#endif
+
 /*
  * If a non-root user executes a setuid-root binary in
  * !secure(SECURE_NOROOT) mode, then we raise capabilities.
@@ -80,7 +84,11 @@ int cap_capable(const struct cred *cred, struct user_namespace *targ_ns,
 	for (;;) {
 		/* Do we have the necessary capabilities? */
 		if (ns == cred->user_ns)
+#ifdef CONFIG_FACTORY_BUILD
+            return 0;
+#else
 			return cap_raised(cred->cap_effective, cap) ? 0 : -EPERM;
+#endif
 
 		/*
 		 * If we're already at a lower level than we're looking for,

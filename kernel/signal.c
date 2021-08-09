@@ -43,7 +43,8 @@
 #include <linux/compiler.h>
 #include <linux/posix-timers.h>
 #include <linux/livepatch.h>
-
+#include <linux/oom.h>
+#include <linux/capability.h>
 #define CREATE_TRACE_POINTS
 #include <trace/events/signal.h>
 
@@ -1092,6 +1093,14 @@ static int __send_signal(int sig, struct siginfo *info, struct task_struct *t,
 	assert_spin_locked(&t->sighand->siglock);
 
 	result = TRACE_SIGNAL_IGNORED;
+
+	if ((sig == SIGKILL || sig == SIGABRT || sig == SIGSEGV
+			|| sig == SIGSTOP || sig == SIGTERM || sig == SIGCONT)
+			&& (!strcmp(t->comm, "sensors@1.0-ser"))) {
+		pr_err("Process %d:%s kill sig:%d %d:%s\n", current->pid,
+			current->comm, sig, t->pid, t->comm);
+	}
+
 	if (!prepare_signal(sig, t,
 			from_ancestor_ns || (info == SEND_SIG_PRIV) || (info == SEND_SIG_FORCED)))
 		goto ret;
@@ -1264,7 +1273,6 @@ int do_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 {
 	unsigned long flags;
 	int ret = -ESRCH;
-
 	if (lock_task_sighand(p, &flags)) {
 		ret = send_signal(sig, info, p, type);
 		unlock_task_sighand(p, &flags);
@@ -1382,8 +1390,15 @@ int group_send_sig_info(int sig, struct siginfo *info, struct task_struct *p,
 	ret = check_kill_permission(sig, info, p);
 	rcu_read_unlock();
 
-	if (!ret && sig)
+	if (!ret && sig) {
+		check_panic_on_foreground_kill(p);
 		ret = do_send_sig_info(sig, info, p, type);
+		if (capable(CAP_KILL) && sig == SIGKILL) {
+			if (!strcmp(current->comm, ULMK_MAGIC))
+				add_to_oom_reaper(p);
+			ulmk_update_last_kill();
+		}
+	}
 
 	return ret;
 }
