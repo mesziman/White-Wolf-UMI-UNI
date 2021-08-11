@@ -1,3 +1,4 @@
+#ifdef CONFIG_XLOGCHAR
 #include "send_data_to_xlog.h"
 #include <linux/debugfs.h>
 
@@ -42,3 +43,6 @@ int xlog_format_msg_int (char *msg, int dc_current_cnt, char *reason)
 	pr_info("%s end", __func__);
 	return 0;
 }
+
+#endif
+
