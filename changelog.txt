@@ -1,0 +1,128 @@
+
+Project name: White-Wolf-UMI-UNI
+
+24/04/2021
+
+  * version 2
+  * defconfig: update wlan default config
+  * qcacld-3.0: Fallback to default WCNSS config path for custom ROMs
+  * qcacld-3.0: wlan_hdd_misc: Fix ini file path for oos11
+  * qcacld-3.0: Cleanup unused driver initialization code
+  
+
+24/03/2021
+
+  * version 1
+  * yarpiin_defconfig: update
+  * techpack: display: dsi_phy: Force allow panel phy power off
+  * techpack: display: dsi_panel: Force enable Ultra-Low Power State feature for all panel
+  * rcu: fix a performance regression
+  * dts: kona-gpu: Remove qos active latency node
+  * msm: kgsl: adreno: Properly set GPU timeout
+  * dts: kona: Set GPU idle timeout to 64 ms
+  * msm: kgsl: Wake GPU upon receiving an ioctl rather than upon touch input
+  * proc: Don't let Google Camera run in the background
+  * rcu: fix a performance regression
+  * CHROMIUM: selinux: Do not log permissive denials
+  * Silences WLAN, PCIe, and CPU suspend state kernel messages
+  * binder: disable logging
+  * kernel: Silence workqueue
+  * zram: Override disksize to 2560M
+  * zram: Set default compressor to lz4
+  * sched: features: Disable EAS_PREFER_IDLE
+  * PM/Sleep: Start killing wakelocks after two minutes of idle (120s)
+  * kernel: power: suspend: switch to sleep2idle
+  * cpuidle: don't disable cpuidle when entering suspend
+  * cpuidle: enter_state: Don't needlessly calculate diff time
+  * cpuidle: lpm-levels: Allow exit latencies equal to target latencies
+  * cpuidle: Do not select menu and ladder governors
+  * cpu: Silence log spam when a CPU is brought up
+  * cpufreq: Don't WARN_ON on non-existent cpu
+  * cpufreq: schedutil: make iowait boost optional
+  * kernel: Boost all CPUs to the max when userspace launches an app
+  * cpu_input_boost: add support for boost freqs lower than min freq
+  * cpu_input_boost: Allow configuration of each cluster's minimum idle frequency
+  * cpu_input_boost: Allow configuration of each cluster's minimum frequency
+  * cpu_input_boost: Expose compile-time settings as module parameters
+  * cpu_input_boost: Introduce driver for event-based CPU boosting
+  * linux: Import msm_drm notifier header
+  * cpumask: Add cpumask for the Prime CPU cluster
+  * cpumask: Add cpumasks for big and LITTLE CPU clusters
+  * scripts/wireguard: script permission
+  * scripts/wireguard: fetch: use new module source location
+  * scripts/wireguard: Limit connection time to 30 seconds
+  * scripts/wireguard: more reliable version selection
+  * net/wireguard: add wireguard importer
+  * kcal: pie: fix used pcc setup for sde path
+  * drm: msm: kcal: make the userspace module param vars static and use short instead of integers
+  * drm: msm: kcal: hue, saturation, value and contrast adjustments
+  * drm: msm: kcal: export rgb to userspace and clean it up
+  * kcal: sde_hw: color proc v4: add RGB bias
+  * adrenoboost: stats is now a pointer
+  * adrenoboost: disable by default
+  * adrenoboost: finetuning algorithm - scale it a bit down
+  * msm_adreno_tz: add adrenoboost parameter
+  * build: remove dtbo.img upon clean
+  * msm_performance: Kill boosts
+  * input: fts: fix compilation after cpu boost unset
+  * yarpiin_defconfig: unset cpu boos
+  * msm: kgsl: Turn debugfs off
+  * msm: kgsl: Relax CPU latency requirements to save power
+  * kgsl: run kgsl-workqueue as a high prio wq
+  * kgsl: Increase priority of RT thread
+  * devfreq: Use high priority workqueue
+  * workqueue: change permissions to allow root control of wq_power_efficient toggle
+  * drivers/mmc/core: expose software CRC check option to userspace
+  * treewide: nuke rest of Android.mk
+  * kernel: update sm8250-pref_defconfig
+  * defconfig: disable some debugging and unneeded stuff
+  * scripts: Makefile.lib: Don't disable dtc checks
+  * dtc-aosp: Makefile: Fix building on k4.19
+  * dtc-aosp: Remove duplicate yylloc definition
+  * dtc-aosp: Bake aosp dtc into the kernel tree
+  * mkdtimg: Bundle upstream python rewrite as submodule
+  * dtbo.img: build device tree overlay partition image
+  * Revert "scripts: Makefile: add support to use external DTC"
+  * dtc: Bundle AOSP's fork of dtc
+  * treewide: build modules inline in line
+  * misc: supress build warning
+  * scripts: dtc: Silence warnings
+  * platform: msm: gsi: Fix symbol versioning failure for gsi_write_channel_scratch
+  * scripts: Don't append "+" to localversion
+  * setlocalversion: Reduce git commit hash length
+  * setlocalversion: don't check for uncommitted changes
+  * setlocalversion: avoid calling git describe
+  * kernel: Use sm8250-perf_defconfig for /proc/config.gz
+  * gitignore: add out directory
+  * defconfig: build qcacld-3.0
+  * qcacld-3.0: Disable build timestamp
+  * qcacld-3.0: Disable build tagging.
+  * qcacld-3.0: Only call hdd_debugfs_process_mib_stats if debugfs is enabled.
+  * qcacld-3.0: qca6390_defconfig: Tone down debugging.
+  * qcacld-3.0: qca6390_defconfig: Enable power debug.
+  * qcacld-3.0: qca6390_defconfig: Enable desc debug check.
+  * qcacld-3.0: qca6390_defconfig: Enable multi-page allocation.
+  * qcacld-3.0: Fix regulatory domain country names.
+  * qcacld-3.0: Nuke rx_wakelock code entirely.
+  * qcacld-3.0: Defer HDD initialization.
+  * qcacld-3.0: Discard wlan_boot sysfs code on !CONFIG_MODULES.
+  * qcacld-3.0: Initialize variables to avoid errors during compilation.
+  * qcacld-3.0: Do not manually re-enable -Wmaybe-uninitialized.
+  * qcacld-3.0: Always force user build.
+  * qcacld-3.0: Nuke Kconfig-based configuration entirely.
+  * stagging: Import Xiaomi qcacld-3.0
+  * add yarpiin build stuff
+  * dts: Disable AVB
+  * techpack: dont build elliptic
+  * techpack: nuke down data/Android.mk
+  * techpack: build all inline
+  * techpack: hardcode module list
+  * techpack: import Xiaomi camera
+  * techpack: import Xiaomi data drivers
+  * techpack: audio: remove product guards
+  * techpack: audio: Builtin tfa98xx codecs
+  * techpack: import Xiaomi audio
+  * dts: import Xiaomi device tree
+  * umi: update gitignore
+  * Merge remote-tracking branch 'xiaomi_opensource/cmi-r-oss' into A11
+  * Kernel: Xiaomi kernel changes for Redmi K30S Ultra, Mi 10 Ultra, Mi 10 Pro, Redmi K30 Pro and Mi 10 Android R
