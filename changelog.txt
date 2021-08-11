@@ -1,6 +1,71 @@
 
 Project name: White-Wolf-UMI-UNI
 
+11/07/2021
+
+  * defconfig: Enable Simple LMK
+  * mm: vmpressure: Fix rampant inaccuracies caused by stale data usage
+  * mm: vmpressure: Fix a race that would erroneously clear accumulated data
+  * mm: vmpressure: Ignore costly-order allocations for direct reclaim too
+  * simple_lmk: Update do_send_sig_info() group argument for 4.18+
+  * simple_lmk: Optimize victim finder to eliminate hard-coded adj ranges
+  * simple_lmk: Cacheline-align the victims array and mm_free_lock on SMP
+  * simple_lmk: Pass a custom swap function to sort()
+  * simple_lmk: Skip victim reduction when all victims need to be killed
+  * simple_lmk: Use MIN_FREE_PAGES wherever pages_needed is used
+  * simple_lmk: Don't block in simple_lmk_mm_freed() on mm_free_lock
+  * mm: vmpressure: Don't export tunables to userspace
+  * simple_lmk: Update Kconfig description for VM pressure change
+  * simple_lmk: Add !PSI dependency
+  * simple_lmk: Print a message when the timeout is reached
+  * VFS: use synchronize_rcu_expedited() in namespace_unlock()
+  * simple_lmk: Remove unnecessary clean-up when timeout is reached
+  * simple_lmk: Hold an RCU read lock instead of the tasklist read lock
+  * mm: Don't stop kswapd on a per-node basis when there are no waiters
+  * simple_lmk: Consider all positive adjs when finding victims
+  * mm: vmpressure: Ignore allocation orders above PAGE_ALLOC_COSTLY_ORDER
+  * mm: Don't warn on page allocation failures for OOM-killed processes
+  * mm: Adjust tsk_is_oom_victim() for Simple LMK
+  * mm: vmpressure: Don't cache the window size
+  * mm: vmpressure: Interpret zero scanned pages as 100% pressure
+  * mm: vmpressure: Don't exclude any allocation types
+  * simple_lmk: Update adj targeting for Android 10
+  * simple_lmk: Use vmpressure notifier to trigger kills
+  * mm: vmpressure: account allocstalls only on higher pressures
+  * mm: vmpressure: scale pressure based on reclaim context
+  * mm: Stop kswapd early when nothing's waiting for it to free pages
+  * simple_lmk: Include swap memory usage in the size of victims
+  * simple_lmk: Relax memory barriers and clean up some styling
+  * simple_lmk: Place victims onto SCHED_RR
+  * simple_lmk: Add a timeout to stop waiting for victims to die
+  * simple_lmk: Ignore tasks that won't free memory
+  * simple_lmk: Simplify tricks used to speed up the death process
+  * simple_lmk: Report mm as freed as soon as exit_mmap() finishes
+  * simple_lmk: Mark victim thread group with TIF_MEMDIE
+  * simple_lmk: Disable OOM killer when Simple LMK is enabled
+  * simple_lmk: Print a message when there are no processes to kill
+  * simple_lmk: Remove compat cruft not specific to 4.14
+  * simple_lmk: Update copyright to 2020
+  * simple_lmk: Don't queue up new reclaim requests during reclaim
+  * simple_lmk: Increase default minfree value
+  * simple_lmk: Clean up some code style nitpicks
+  * simple_lmk: Make reclaim deterministic
+  * simple_lmk: Fix broken multicopy atomicity for victims_to_kill
+  * simple_lmk: Use proper atomic_* operations where needed
+  * simple_lmk: Remove kthread_should_stop() exit condition
+  * simple_lmk: Fix pages_found calculation
+  * simple_lmk: Introduce Simple Low Memory Killer for Android
+  * kernel/power: faster deepsleep
+  * defconfig: drop appended dtb image
+  * techpack: audio: Use 24-bit audio
+  * Revert "techpack: video: Import Xiaomi changes"
+  * [Re-Apply] techpack: video: msm: vidc: disable decode batching feature
+  * techpack: video: fix kona features
+  * lib/lz4: explicitly support in-place decompression
+  * lz4: fix kernel decompression speed
+  * lib/lz4: update LZ4 decompressor module
+  * defconfig: sync with 12.5.5 stock kernel
+
 07/06/2021
 
   * drivers: ufs: Roll back auto-hiberate idle timer to 1ms
