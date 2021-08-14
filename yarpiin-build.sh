@@ -35,7 +35,7 @@ BASE_YARPIIN_VER="WHITE.WOLF.UNI.R."
 UMI_VER="UMI"
 CMI_VER="CMI"
 CAS_VER="CAS"
-VER=".009"
+VER=".010"
 YARPIIN_UMI_VER="$BASE_YARPIIN_VER$UMI_VER$VER"
 YARPIIN_CMI_VER="$BASE_YARPIIN_VER$CMI_VER$VER"
 YARPIIN_CAS_VER="$BASE_YARPIIN_VER$CAS_VER$VER"
@@ -73,6 +73,7 @@ function clean_all {
 function make_umi_kernel {
 		echo
         export LOCALVERSION=-`echo $YARPIIN_UMI_VER`
+        export TARGET_PRODUCT=umi
         make O=out ARCH=arm64 $UMIDEFCONFIG
 
         PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
@@ -90,6 +91,7 @@ function make_umi_kernel {
 function make_cmi_kernel {
 		echo
         export LOCALVERSION=-`echo $YARPIIN_CMI_VER`
+        export TARGET_PRODUCT=cmi
         make O=out ARCH=arm64 $CMIDEFCONFIG
 
         PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
@@ -107,6 +109,7 @@ function make_cmi_kernel {
 function make_cas_kernel {
 		echo
         export LOCALVERSION=-`echo $YARPIIN_CAS_VER`
+        export TARGET_PRODUCT=cas
         make O=out ARCH=arm64 $CASDEFCONFIG
 
         PATH="$CLANG_DIR:$GCC_DIR:${PATH}" \
@@ -269,6 +272,28 @@ do
 case "$dchoice" in
 	y|Y)
 		make_cmi_zip
+		break
+		;;
+	n|N )
+		break
+		;;
+	* )
+		echo
+		echo "Invalid try again!"
+		echo
+		;;
+esac
+done
+
+echo
+
+while read -p "Do you want to clean stuffs (y/n)? " cchoice
+do
+case "$cchoice" in
+	y|Y )
+		clean_all
+		echo
+		echo "All Cleaned now."
 		break
 		;;
 	n|N )

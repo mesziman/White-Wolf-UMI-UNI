@@ -1,5 +1,26 @@
 Project name: White-Wolf-UMI-UNI
 
+
+13/08/2021
+
+  * version 10
+  * Revert "techpack: video: Import Xiaomi changes"
+  * techpack: video: msm: vidc: disable decode batching feature
+  * techpack: video: fix kona features
+  * Revert "techpack: audio: remove product guards"
+  * techpack: audio: Silence some logspam
+  * power: supply: qcom: Disable debug masks
+  * input: aw8697_haptic: Disable Debugging
+  * input: touchscreen: nt36672c: Disable Debugging
+  * input: touchscreen: xiaomi: Disable Debugging
+  * input: touchscreen: focaltech_touch: Disable Debugging
+  * input: touchscreen: focaltech_spi: Disable Debugging
+  * input: touchscreen: focaltech_touch: Disable Production test module
+  * input: touchscreen: focaltech_spi: Disable Production test module
+  * techpack: audio: dont build mius
+  * techpack: audio: set guards to  fix compilation after XLOGCHAR unset
+  * defconfig: update
+
 05/08/2021
 
   * version 9
